@@ -17,6 +17,18 @@ angular.module('app', ['ionic', 'ngCordova'])
         }
     });
 })
+.config(function($provide){
+ 
+    $provide.decorator("$exceptionHandler", function($delegate, $injector){
+        return function(exception, cause){
+            var $rootScope = $injector.get("$rootScope");
+            //$rootScope.addError({message:"Exception", reason:exception});
+            alert(exception)
+            $delegate(exception, cause);
+        };
+    });
+ 
+})
 
 .controller('imageController', function($scope, $cordovaCamera, $cordovaFile) {
     // 1
