@@ -3,7 +3,7 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-angular.module('app', ['ionic', 'ngCordova'])
+angular.module('app', ['ionic','ionic.service.core', 'ngCordova','ngCordova.plugins.file','ngCordova.plugins.file','ngCordova.plugins.camera'])
 
 .run(function($ionicPlatform) {
     $ionicPlatform.ready(function() {
@@ -15,6 +15,7 @@ angular.module('app', ['ionic', 'ngCordova'])
         if(window.StatusBar) {
             StatusBar.styleDefault();
         }
+        
     });
 })
 .config(function($provide){
@@ -30,23 +31,57 @@ angular.module('app', ['ionic', 'ngCordova'])
  
 })
 
-.controller('imageController', function($scope, $cordovaCamera, $cordovaFile) {
+.controller('imageController',['$scope','$cordovaCamera','$cordovaFile','$cordovaDevice','$timeout' ,'$window', function($scope, $cordovaCamera, $cordovaFile,$cordovaDevice,$timeout, $window) {
     // 1
-    $scope.images = [];
+    $scope.log = {};
+      try {
+            $scope.options = {
+      quality: 50,
+      destinationType: Camera.DestinationType.DATA_URL,
+      sourceType: Camera.PictureSourceType.CAMERA,
+      allowEdit: true,
+      encodingType: Camera.EncodingType.JPEG,
+      targetWidth: 100,
+      targetHeight: 100,
+      popoverOptions: CameraPopoverOptions,
+      saveToPhotoAlbum: false,
+	  correctOrientation:true
+    };
+    }
+    catch(ex)
+    {
+        console.log(ex);
+    }
+    
+    document.addEventListener('deviceready', function () {
+    
+    
+  
+      
+            $scope.log.cordova  = $cordovaDevice.getCordova();
+            $scope.log.version =$cordovaDevice.getVersion();
+            $scope.log.platform = $cordovaDevice.getPlatform();
+            $scope.log.device = $cordovaDevice.getDevice();
+            $scope.log.model = $cordovaDevice.getModel();
+            $scope.log.uid =$cordovaDevice.getUUID();
+            
+      
+   
+    $scope.test = $cordovaCamera.getPicture();
+   $scope.images = [];
 
-$scope.cam = $cordovaCamera;
-    $scope.addImage = function() {
+
+    $scope.takePicture = function() {
         // 2
-        $scope.options = {
-            destinationType : Camera.DestinationType.FILE_URI,
-            sourceType : Camera.PictureSourceType.CAMERA, // Camera.PictureSourceType.PHOTOLIBRARY
-            allowEdit : false,
-            encodingType: Camera.EncodingType.JPEG,
-            popoverOptions: CameraPopoverOptions,
-        };
+       var options = {
+         quality : 75,
+         targetWidth: 200,
+         targetHeight: 200,
+         sourceType: 1
+      };
 
         // 3
-        $cordovaCamera.getPicture($scope.options).then(function(imageData) {
+        $cordovaCamera.getPicture(options).then(function(imageData) {
 
             // 4
             onImageSuccess(imageData);
@@ -63,7 +98,7 @@ $scope.cam = $cordovaCamera;
             function copyFile(fileEntry) {
                 var name = fileEntry.fullPath.substr(fileEntry.fullPath.lastIndexOf('/') + 1);
                 var newName = makeid() + name;
-
+                        
                 window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function(fileSystem2) {
                     fileEntry.copyTo(
                         fileSystem2,
@@ -122,7 +157,7 @@ $scope.cam = $cordovaCamera;
 
             // 4
             window.plugin.email.open({
-                to:          ["saimon@devdactic.com"], // email addresses for TO field
+                to:          ["sylwooo@dhotmail.com"], // email addresses for TO field
                 cc:          Array, // email addresses for CC field
                 bcc:         Array, // email addresses for BCC field
                 attachments: images, // file paths or base64 data streams
@@ -135,4 +170,5 @@ $scope.cam = $cordovaCamera;
             this);
         }
     }
-});
+    })
+}]);
